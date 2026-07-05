@@ -43,7 +43,7 @@ FloraGuard, çiftçilere yalnızca "bitkiniz şu an hasta mı?" sorusunun cevab�
 
 ### Product Backlog URL
 
-![Sprint 1 Jira Board](docs/sprint1_scrum_photos/)
+![Sprint 1 Jira Board](docs/sprint1_scrum_photos/jira_board.png)
 
 ---
 
