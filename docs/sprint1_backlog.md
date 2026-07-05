@@ -26,4 +26,3 @@ Sprint 1 backlog'u oluşturulurken şu önceliklendirme mantığı izlenmiştir:
 - [JS-09] LSTM modelinin gerçek zaman serisiyle ilk (baseline) eğitimi
 - [JS-10] Geçmiş hastalık kayıtları için veri şeması (agent hafızasının temeli)
 - [JS-11] Sprint Board'un (Jira) tüm ekiple senkronize edilmesi
----
