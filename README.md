@@ -43,7 +43,7 @@ FloraGuard, çiftçilere yalnızca "bitkiniz şu an hasta mı?" sorusunun cevab�
 
 ### Product Backlog URL
 
-https://yzta-bootcamp-grup-303.atlassian.net/jira/software/projects/SCRUM/summary?atlOrigin=eyJpIjoiNGE0ODI0ZjQ2ODMwNDM1MGJjZjYyNzkyOGI2YjVmZTAiLCJwIjoiaiJ9
+![Sprint 1 Jira Board](docs/sprint1_scrum_photos/)
 
 ---
 
