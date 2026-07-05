@@ -1,4 +1,4 @@
-# Sprint 1 -- Review & Retrospective
+# Sprint 1 - Review & Retrospective
 
 **Tarih:** 5 Temmuz 2026
 **Katılım:** Ege Pehlivan (Asenkron iletişimde kopukluklar yaşandığı için notlar SM tarafından derlenmiştir.)
