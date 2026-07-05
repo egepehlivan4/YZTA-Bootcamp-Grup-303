@@ -43,7 +43,7 @@ FloraGuard, çiftçilere yalnızca "bitkiniz şu an hasta mı?" sorusunun cevab�
 
 ### Product Backlog URL
 
-[Trello/Miro Board Linki — eklenecek]
+https://yzta-bootcamp-grup-303.atlassian.net/jira/software/projects/SCRUM/summary?atlOrigin=eyJpIjoiNGE0ODI0ZjQ2ODMwNDM1MGJjZjYyNzkyOGI2YjVmZTAiLCJwIjoiaiJ9
 
 ---
 
