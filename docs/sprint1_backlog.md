@@ -26,3 +26,7 @@ Sprint 1 backlog'u oluşturulurken şu önceliklendirme mantığı izlenmiştir:
 - [JS-09] LSTM modelinin gerçek zaman serisiyle ilk (baseline) eğitimi
 - [JS-10] Geçmiş hastalık kayıtları için veri şeması (agent hafızasının temeli)
 - [JS-11] Sprint Board'un (Jira) tüm ekiple senkronize edilmesi
+
+## Story Tahmin Notu
+
+Tahminler Planning Poker yerine (ekip senkron toplanamadığından) T-shirt sizing (S/M/L) ile yapılmış, S=1-2 saat, M=yarım gün, L=1+ gün olarak kabul edilmiştir. Tüm JS görevleri ekibin iş dağılımına uygun olarak tahminlenmiştir.
