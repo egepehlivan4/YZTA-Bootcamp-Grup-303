@@ -8,19 +8,17 @@
 
 ### Takım Elemanları
 
-> ⚠️ **Not:** Rol dağılımı taslaktır; takım üyelerinin onayıyla kesinleşecektir.
-
 | İsim | Rol | Teknik Odak (Öneri) |
 |---|---|---|
 | Ege Pehlivan | Scrum Master / Developer | Backend (FastAPI), mimari, Agent orkestrasyonu |
-| Turan | Product Owner / Developer | Backlog yönetimi, veri toplama & regresyon modülü |
-| Nehir Doğan | Developer | CNN modeli (görüntü sınıflandırma) |
-| Fatma Çelik | Developer | LSTM modeli (zaman serisi) + ensemble |
-| Bedirhan İhtiyar | Developer | Frontend (Streamlit), RBAC, deployment |
+| Murad Arıcan | Product Owner / Developer | Backlog yönetimi, veri toplama & regresyon modülü |
+| Ahmet Muhammet Gayıp | Developer | CNN modeli (görüntü sınıflandırma) |
+| Arif Bayındır | Developer | LSTM modeli (zaman serisi) + ensemble |
+| Ecem Nur Özen | Developer | Frontend (Streamlit), RBAC, deployment |
 
 ### Ürün İsmi
 
-**FloraGuard** *(taslak — takım onayı bekleniyor)*
+**FloraGuard**
 
 ### Ürün Açıklaması
 
