@@ -6,6 +6,8 @@
 
 ## Ürün İle İlgili Bilgiler
 
+Takım İsmi: Grup 303
+
 ### Takım Elemanları
 
 | İsim | Rol | Teknik Odak (Öneri) |
