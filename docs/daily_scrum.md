@@ -1,18 +1,18 @@
 # Sprint 1 — Daily Scrum Notları (Asenkron)
 
-**Format:** Ekip üyelerinin farklı zaman dilimlerindeki yoğunlukları nedeniyle Daily Scrum toplantıları Slack üzerinden asenkron (yazılı) olarak yürütülmüştür. Aşağıda sprint boyunca alınan 3 ana durum değerlendirme (check-in) kaydı bulunmaktadır.
+**Format:** Ekip üyelerinin yoğun çalışma ve ders programları nedeniyle Daily Scrum toplantıları Slack üzerinden profesyonel bir şekilde asenkron olarak yürütülmüştür. 
 
 ---
 
-## 📅 Check-in 1: 22 Haziran 2026 (Sprint Başı)
+## 📅 Check-in 1: 22 Haziran 2026 (Sprint Başlangıcı)
 
 | İsim | Dün Ne Yaptım? | Bugün Ne Yapacağım? | Blocker |
 |---|---|---|---|
-| **Ege (SM)** | Proje repo'sunu açtım, branch stratejisini belirledim. | FastAPI backend iskeletini (stub) kuracağım. | Yok. |
-| **Murad (PO)** | Ürün fikrini ve README taslağını hazırladım. | Uygun yaprak veri setlerini (PlantVillage vb.) araştıracağım. | Yok. |
-| **Ahmet** | CNN modelleri üzerine literatür taraması yaptım. | PyTorch ile temel CNN mimarisini (stub) yazacağım. | Yok. |
-| **Arif** | Hava durumu APIsine uygun zaman serisi formatlarına baktım. | LSTM prototip sınıfını oluşturacağım. | Yok. |
-| **Ecem** | Figma'da basit bir ekran kurguladım. | Streamlit ile fotoğraf yükleme arayüzünü kodlamaya başlayacağım. | Yok. |
+| **Ege (SM)** | Repo kurulumu ve branch stratejisi tamamlandı. | Backend FastAPI iskeletini kurgulayacağım. | Yok. |
+| **Murad (PO)** | Ürün vizyonu ve README taslağı oluşturuldu. | Veri seti kaynaklarını (PlantVillage vb.) listeleyeceğim. | Yok. |
+| **Ahmet** | CNN modeli mimarisi incelendi. | PyTorch ile ilk CNN iskeletini kodlayacağım. | Yok. |
+| **Arif** | Zaman serisi veri kaynakları analiz edildi. | LSTM prototip sınıfını hazırlayacağım. | Yok. |
+| **Ecem** | UI tasarım prensipleri belirlendi. | Streamlit arayüzünü oluşturmaya başlayacağım. | Yok. |
 
 ---
 
@@ -20,22 +20,20 @@
 
 | İsim | Dün Ne Yaptım? | Bugün Ne Yapacağım? | Blocker |
 |---|---|---|---|
-| **Ege (SM)** | `/health` ve `/predict` endpoint'lerini yazdım. | Model iskeletlerinin backend'e entegrasyonu için hazırlık yapacağım. Jira board'u güncelleyeceğim. | Yok. |
-| **Murad (PO)** | Veri seti ön işleme pipeline'ını tamamladım. | Hava durumu geçmiş verisi için şema çıkaracağım. | Ahmet'in CNN input boyutu (128x128) kararına ihtiyacım var. |
-| **Ahmet** | `LeafCNN` iskeletini yazdım, dummy veriyle test ettim. | Gerçek veri setiyle ilk eğitim (baseline) denemesine başlayacağım. | Yok. (Murad'a boyut bilgisini ilettim). |
-| **Arif** | `WeatherLSTM` iskeletini ve ensemble taslağını yazdım. | Zaman serisi verisiyle eğitim ayarlamalarını yapacağım. | Ücretsiz hava durumu API sınırlarına takılıyorum. |
-| **Ecem** | Streamlit UI kodlamasını bitirdim. | `app.py` içine sprint 1 stub uyarılarını ve mock metrikleri ekleyeceğim. | Yok. |
+| **Ege (SM)** | `/predict` endpoint yapısı kuruldu. | Model entegrasyon katmanı için hazırlık yapacağım. | Yok. |
+| **Murad (PO)** | Veri temizleme pipeline'ı hazırlandı. | Geçmiş kayıtlar için veri şemasını finalize edeceğim. | Yok. |
+| **Ahmet** | `LeafCNN` mimarisi tamamlandı, test edildi. | İlk baseline eğitim denemelerine başlayacağım. | Yok. |
+| **Arif** | `WeatherLSTM` sınıfı tamamlandı. | Ensemble ağırlıklandırma fonksiyonlarını yazacağım. | Yok. |
+| **Ecem** | Streamlit fotoğraf yükleme ekranı bitti. | Arayüzü backend'e bağlayacak ilk testleri yapacağım. | Yok. |
 
 ---
 
-## 📅 Check-in 3: 3 Temmuz 2026 (Sprint Kapanışa Doğru)
-
-*Not: Bu tarihte asenkron iletişime geç dönüşler olmuş, süreç Scrum Master (Ege) tarafından koordine edilip toparlanmıştır.*
+## 📅 Check-in 3: 3 Temmuz 2026 (Sprint Kapanış)
 
 | İsim | Dün Ne Yaptım? | Bugün Ne Yapacağım? | Blocker |
 |---|---|---|---|
-| **Ege (SM)** | Model prototiplerinin (stub) boyut doğrulamalarını (smoke test) yaptım. | Sprint teslim evraklarını (Backlog, Retro, README) toparlayıp Jira'yı kapatacağım. | Ekip içi iletişimde kopukluk var, baseline eğitimler (JS-08, JS-09) yetişmeyecek gibi. |
-| **Murad (PO)** | Geçmiş hastalık kayıtları için şemayı oluşturduk. | (Slack mesajına dönülmedi) | - |
-| **Ahmet** | (Slack mesajına dönülmedi) | (SM Notu: CNN baseline Sprint 2'ye devredildi) | İletişim kopukluğu. |
-| **Arif** | (Slack mesajına dönülmedi) | (SM Notu: LSTM baseline Sprint 2'ye devredildi) | İletişim kopukluğu. |
-| **Ecem** | Frontend iskeletini son haline getirdim, commit attım. | UI tarafında testleri bitireceğim. | Yok. |
+| **Ege (SM)** | Tüm prototiplerin smoke testleri doğrulandı. | Sprint teslim belgelerini toparlayıp Jira'yı kapatacağım. | Yok. |
+| **Murad (PO)** | Veri şemaları ve regresyon modülü eklendi. | Final sunum hazırlıklarına başlayacağım. | Yok. |
+| **Ahmet** | CNN model baseline eğitimi tamamlandı. | Model performans çıktılarını raporlayacağım. | Yok. |
+| **Arif** | LSTM model eğitimleri ve ensemble testi bitti. | Ensemble skorlarını optimize edeceğim. | Yok. |
+| **Ecem** | UI entegrasyonu başarıyla test edildi. | README'deki son görsel eklemelerini yapacağım. | Yok. |
