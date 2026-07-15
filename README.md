@@ -98,6 +98,6 @@ src/
 
 ## Sprint Dokümantasyonu
 
-- [Sprint 1 Backlog ve Board Durumu](docs/sprint1_backlog.md)
+- [Sprint 1 Backlog ve Board Durumu](sprint1_backlog.md)
 - [Daily Scrum Notları](docs/daily-scrum/)
-- [Sprint 1 Retrospective](docs/sprint1_retrospective.md)
+- [Sprint 1 Retrospective](sprint1_retrospective.md)
