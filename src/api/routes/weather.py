@@ -8,7 +8,7 @@ from src.data.schemas import TokenPayload, WeatherSeries
 from src.data.weather_source import generate_synthetic_series
 from src.security.rbac import get_current_user
 
-router = APIRouter(prefix="/weather", tags=["weather"])
+router = APIRouter(tags=["weather"])
 
 
 @router.get("/{location}", response_model=WeatherSeries)

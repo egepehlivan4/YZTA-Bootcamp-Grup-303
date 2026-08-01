@@ -17,8 +17,12 @@ import json
 import logging
 import re
 
-from langchain_anthropic import ChatAnthropic
-from langgraph.prebuilt import create_react_agent
+from langchain_groq import ChatGroq
+
+try:
+    from langgraph.prebuilt import create_react_agent  # LangGraph >=1.0
+except ImportError:
+    from langchain.agents import create_agent as create_react_agent  # fallback
 
 from src.agent.memory import FarmerMemory
 from src.agent.prompts import HUMAN_TASK_TEMPLATE, SYSTEM_PROMPT
@@ -56,12 +60,12 @@ class OrchestratorService:
         self._agent = self._build_agent()
 
     def _build_agent(self):
-        # api_key açıkça verilmezse ChatAnthropic otomatik olarak ANTHROPIC_API_KEY
+        # api_key açıkça verilmezse ChatGroq otomatik olarak GROQ_API_KEY
         # ortam değişkenini okur; None'ı açıkça geçmek bu davranışı ezip hataya yol açar.
         llm_kwargs = {"model": self.settings.llm_model, "temperature": self.settings.llm_temperature}
-        if self.settings.anthropic_api_key:
-            llm_kwargs["api_key"] = self.settings.anthropic_api_key
-        llm = ChatAnthropic(**llm_kwargs)
+        if self.settings.groq_api_key:
+            llm_kwargs["api_key"] = self.settings.groq_api_key
+        llm = ChatGroq(**llm_kwargs)
         return create_react_agent(llm, self.tools, prompt=SYSTEM_PROMPT)
 
     def analyze(self, farmer_id: str, image_path: str, location: str, crop_type: str) -> dict:

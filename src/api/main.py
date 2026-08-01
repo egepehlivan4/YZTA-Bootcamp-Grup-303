@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Any
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -127,7 +128,7 @@ def create_app() -> FastAPI:
     app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 
     @app.get("/health", tags=["System Health"])
-    def health_check() -> Dict[str, Any]:
+    def health_check() -> dict[str, Any]:
         """
         Sistemin ayakta olup olmadığını kontrol eden health endpoint'i.
         Deployment (Render/AWS) aşamasındaki uptime kontrolleri için kritik.

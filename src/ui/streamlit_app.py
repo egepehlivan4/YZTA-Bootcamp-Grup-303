@@ -14,9 +14,10 @@ fonksiyon eklenmiştir.
     streamlit run src/ui/streamlit_app.py
 """
 
+from __future__ import annotations
+
 import os
 from datetime import datetime
-from typing import Optional, Dict, Any, List
 
 import requests
 import streamlit as st
@@ -46,7 +47,7 @@ def _init_session_state() -> None:
         st.session_state["role"] = None
 
 
-def _auth_headers() -> Dict[str, str]:
+def _auth_headers() -> dict[str, str]:
     """Geçerli token'ı içeren yetkilendirme başlığını (header) döner."""
     return {"Authorization": f"Bearer {st.session_state['access_token']}"}
 
@@ -55,7 +56,7 @@ def _make_api_request(
     method: str,
     endpoint: str,
     **kwargs: Any
-) -> Optional[requests.Response]:
+) -> requests.Response | None:
     """
     Tüm API isteklerini tek merkezden yöneten DRY (Don't Repeat Yourself) fonksiyonu.
     Bağlantı hatalarını yakalar ve Streamlit arayüzünde hata gösterir.

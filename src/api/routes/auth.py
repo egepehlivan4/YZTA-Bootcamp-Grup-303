@@ -9,7 +9,7 @@ from src.config import Settings, get_settings
 from src.data.schemas import Role, Token
 from src.security.auth import authenticate_user, create_access_token
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 @router.post("/token", response_model=Token)

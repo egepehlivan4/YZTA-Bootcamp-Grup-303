@@ -7,6 +7,7 @@ WORKDIR /app
 # 3. Sistem bağımlılıklarını güncelliyoruz (Derleme hatalarını önlemek için)
 RUN apt-get update && apt-get install -y \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. Önce sadece gereksinimleri kopyalıyoruz (Docker Cache Optimizasyonu)
@@ -18,11 +19,19 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # 6. Projenin kaynak kodlarını konteynere kopyalıyoruz
+# NOT: .env dosyası KOPYALANMAZ — ortam değişkenleri Render dashboard'dan verilmelidir.
 COPY src/ src/
-COPY .env .env
+COPY main.py main.py
+COPY app.py app.py
+COPY data/ data/
+COPY artifacts/ artifacts/
 
 # 7. FastAPI'nin çalışacağı portu dışarı açıyoruz
 EXPOSE 8000
 
-# 8. Render'ın atayacağı dinamik portu dinleyecek şekilde Uvicorn'u başlatıyoruz
+# 8. Health check — Render ve container orkestrasyonu için kritik
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# 9. Render'ın atayacağı dinamik portu dinleyecek şekilde Uvicorn'u başlatıyoruz
 CMD ["sh", "-c", "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # --- Genel ---
     app_name: str = "FloraGuard API"
-    app_version: str = "0.2.0"
+    app_version: str = "1.0.0"
     environment: str = "development"
 
     # --- Depolama ---
@@ -33,10 +33,10 @@ class Settings(BaseSettings):
     ensemble_w_cnn: float = 0.55
     ensemble_w_lstm: float = 0.45
 
-    # --- LLM / Ajan ---
-    llm_provider: str = "anthropic"
-    anthropic_api_key: str | None = None
-    llm_model: str = "claude-sonnet-5"
+    # --- LLM / Ajan (Groq Altyapısı) ---
+    llm_provider: str = "groq"
+    groq_api_key: str | None = None
+    llm_model: str = "llama3-70b-8192"
     llm_temperature: float = 0.3
     agent_max_iterations: int = 8
 

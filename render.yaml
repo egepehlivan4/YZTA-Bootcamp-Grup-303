@@ -1,0 +1,29 @@
+# Render Blueprint — FloraGuard Backend API
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: floraguard-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: GROQ_API_KEY
+        sync: false  # Render dashboard'dan manuel girilmeli
+      - key: JWT_SECRET_KEY
+        generateValue: true  # Render otomatik rastgele değer üretir
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: ENSEMBLE_W_CNN
+        value: "0.55"
+      - key: ENSEMBLE_W_LSTM
+        value: "0.45"
+      - key: LLM_MODEL
+        value: llama3-70b-8192
+      - key: LLM_TEMPERATURE
+        value: "0.3"

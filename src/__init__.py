@@ -1,1 +1,1 @@
-"""FloraGuard — Bitki Hastalığı Tahmin Sistemi (Sprint 2)."""
+"""FloraGuard — Bitki Hastalığı Tahmin Sistemi (v1.0.0 — Sprint 3)."""
