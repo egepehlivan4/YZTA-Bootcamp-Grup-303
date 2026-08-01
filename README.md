@@ -237,8 +237,14 @@ streamlit run src/ui/streamlit_app.py
 
 ### Docker ile Kurulum
 
+Model ağırlıkları (`.pt`/`.joblib`) bilinçli olarak repoya commit edilmez (bkz.
+`.gitignore`); bunun yerine **Docker imajı build edilirken sıfırdan eğitilirler**
+(`Dockerfile` içindeki `RUN python -m src.models.train_cnn ...` adımı). Bu, canlıya
+alınan modelin de yereldeki gibi gerçekten eğitilmiş olmasını garanti eder — build
+süresi bu yüzden ~2-3 dakika sürer.
+
 ```bash
-# Docker imajını oluşturun
+# Docker imajını oluşturun (modelleri de eğitir, birkaç dakika sürebilir)
 docker build -t floraguard .
 
 # Container'ı çalıştırın (ortam değişkenlerini .env dosyasından okuyarak)
@@ -250,7 +256,7 @@ docker run -p 8000:8000 --env-file .env floraguard
 1. GitHub reposunu Render'a bağlayın
 2. **New Web Service** → **Docker** seçin
 3. Environment Variables bölümüne `GROQ_API_KEY` ve diğer değişkenleri ekleyin
-4. Deploy butonuna tıklayın
+4. Deploy butonuna tıklayın — build adımı modelleri otomatik eğitir (yukarıya bakınız)
 
 Veya `render.yaml` Blueprint dosyasını kullanarak:
 ```bash

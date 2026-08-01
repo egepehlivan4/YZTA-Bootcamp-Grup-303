@@ -26,6 +26,14 @@ COPY app.py app.py
 COPY data/ data/
 COPY artifacts/ artifacts/
 
+# 6b. Model ağırlıkları (.pt/.joblib) bilinçli olarak repoya commit edilmiyor
+# (bkz. .gitignore) — bu yüzden imaj build edilirken sıfırdan eğitilirler.
+# Böylece canlıdaki model, yereldeki gibi GERÇEKTEN eğitilmiş olur (rastgele
+# ağırlık/heuristic fallback'e düşmez).
+RUN python -m src.models.train_cnn \
+    && python -m src.models.train_lstm \
+    && python -m src.models.train_regression
+
 # 7. FastAPI'nin çalışacağı portu dışarı açıyoruz
 EXPOSE 8000
 
