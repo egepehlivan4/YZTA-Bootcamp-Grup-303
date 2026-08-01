@@ -46,8 +46,8 @@ def _make_synthetic_dataset(n_samples: int = DEFAULT_N_SAMPLES, seed: int = RAND
     """
     Geliştirme aşaması için sentetik verim kaybı (yield loss) veri seti üretir.
 
-    TODO: Gerçek saha verisi (CSV veya Veritabanı) entegrasyonu yapılacağı zaman
-    bu fonksiyon `pd.read_csv(...)` çağrısına dönüştürülmelidir.
+    Gerçek saha verisi (CSV veya veritabanı) sağlandığında bu fonksiyon
+    `pd.read_csv(...)` çağrısına dönüştürülebilir.
 
     Args:
         n_samples (int): Üretilecek sentetik veri satırı sayısı.

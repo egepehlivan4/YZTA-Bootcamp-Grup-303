@@ -75,3 +75,53 @@ def test_cnn_predict_probabilities_sum_to_one(tmp_path: Path) -> None:
 
     total_prob = sum(result["class_probabilities"].values())
     assert total_prob == pytest.approx(1.0, abs=1e-3)
+
+
+def test_cnn_predict_includes_confidence_and_uncertainty_fields(tmp_path: Path) -> None:
+    """predict() çıktısı, uç durum yönetimi için confidence/is_uncertain alanlarını içermeli."""
+    predictor = CNNPredictor(
+        num_classes=3,
+        class_names=("saglikli", "hastalik_a", "hastalik_b"),
+        weights_path=tmp_path / "non_existent.pt",
+    )
+    result = predictor.predict(_make_test_image_bytes())
+
+    assert 0.0 <= result["confidence"] <= 1.0
+    assert isinstance(result["is_uncertain"], bool)
+
+
+def test_cnn_predict_rejects_empty_bytes(tmp_path: Path) -> None:
+    """Boş dosya baytları anlaşılır bir ValueError ile reddedilmeli (500 yerine)."""
+    predictor = CNNPredictor(
+        num_classes=3,
+        class_names=("saglikli", "hastalik_a", "hastalik_b"),
+        weights_path=tmp_path / "non_existent.pt",
+    )
+    with pytest.raises(ValueError):
+        predictor.predict(b"")
+
+
+def test_cnn_predict_rejects_corrupt_bytes(tmp_path: Path) -> None:
+    """Görüntü olmayan/bozuk baytlar (ör. metin dosyası) ValueError ile reddedilmeli."""
+    predictor = CNNPredictor(
+        num_classes=3,
+        class_names=("saglikli", "hastalik_a", "hastalik_b"),
+        weights_path=tmp_path / "non_existent.pt",
+    )
+    with pytest.raises(ValueError):
+        predictor.predict(b"bu bir goruntu dosyasi degil, duz metin")
+
+
+def test_cnn_predict_rejects_too_small_image(tmp_path: Path) -> None:
+    """Minimum boyutun (16x16px) altındaki görüntüler ValueError ile reddedilmeli."""
+    tiny_image = Image.new("RGB", (4, 4), color=(0, 128, 0))
+    buf = BytesIO()
+    tiny_image.save(buf, format="PNG")
+
+    predictor = CNNPredictor(
+        num_classes=3,
+        class_names=("saglikli", "hastalik_a", "hastalik_b"),
+        weights_path=tmp_path / "non_existent.pt",
+    )
+    with pytest.raises(ValueError):
+        predictor.predict(buf.getvalue())

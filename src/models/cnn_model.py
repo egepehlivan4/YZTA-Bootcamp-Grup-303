@@ -15,34 +15,51 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from torchvision import transforms
 
 logger = logging.getLogger(__name__)
 
+MIN_IMAGE_DIMENSION_PX = 16
+# Top-1 ve top-2 sınıf olasılıkları bu değerden daha az ayrışırsa tahmin
+# "belirsiz" (uncertain) olarak işaretlenir — ör. yaprak dışı bir nesne
+# yüklendiğinde model çıktısı neredeyse uniform dağılıma yaklaşır.
+UNCERTAINTY_MARGIN = 0.15
+
 
 class LeafCNN(nn.Module):
     """
-    Baseline CNN. Girdi: (batch, 3, 128, 128) RGB yaprak görüntüsü.
+    CNN. Girdi: (batch, 3, 128, 128) RGB yaprak görüntüsü.
     Çıktı: (batch, num_classes) sınıf logit'leri.
+
+    BatchNorm + Dropout, sentetik lezyon veri setindeki (bkz. train_cnn.py)
+    doku/renk örüntülerine aşırı uyumu (overfitting) azaltmak için eklendi.
     """
 
     def __init__(self, num_classes: int = 3):
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 16, kernel_size=3, padding=1),
+            nn.BatchNorm2d(16),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.MaxPool2d(2),  # 128 -> 64
             nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.MaxPool2d(2),  # 64 -> 32
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),  # 32 -> 16
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.AdaptiveAvgPool2d(1),
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64, num_classes),
+            nn.Dropout(0.3),
+            nn.Linear(128, num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -80,10 +97,29 @@ class CNNPredictor:
             )
         self.model.eval()
 
+    @staticmethod
+    def _decode_image(image_bytes: bytes) -> Image.Image:
+        """Ham baytları RGB PIL görüntüsüne çevirir; bozuk/desteklenmeyen
+        dosyalarda anlaşılır bir hata fırlatır (API katmanı bunu 422'ye çevirir)."""
+        if not image_bytes:
+            raise ValueError("Yüklenen görüntü dosyası boş.")
+        try:
+            image = Image.open(BytesIO(image_bytes))
+            image.load()  # Kesik/bozuk dosyaları burada, erken yakalar.
+        except (UnidentifiedImageError, OSError) as exc:
+            raise ValueError("Yüklenen dosya geçerli bir JPEG/PNG görüntüsü değil.") from exc
+
+        if image.width < MIN_IMAGE_DIMENSION_PX or image.height < MIN_IMAGE_DIMENSION_PX:
+            raise ValueError(
+                f"Görüntü çok küçük ({image.width}x{image.height}px). "
+                f"En az {MIN_IMAGE_DIMENSION_PX}x{MIN_IMAGE_DIMENSION_PX}px olmalı."
+            )
+        return image.convert("RGB")
+
     @torch.inference_mode()
     def predict(self, image_bytes: bytes) -> dict:
         """Ham görüntü baytlarından sınıf olasılıklarını döner."""
-        image = Image.open(BytesIO(image_bytes)).convert("RGB")
+        image = self._decode_image(image_bytes)
         tensor = _PREPROCESS(image).unsqueeze(0).to(self.device)  # (1, 3, 128, 128)
 
         logits = self.model(tensor)
@@ -93,7 +129,12 @@ class CNNPredictor:
         healthy_key = self.class_names[0]
         diseased_probability = 1.0 - class_probabilities.get(healthy_key, 0.0)
 
+        sorted_probs = sorted(probs, reverse=True)
+        top1_top2_margin = sorted_probs[0] - sorted_probs[1] if len(sorted_probs) > 1 else 1.0
+
         return {
             "class_probabilities": class_probabilities,
             "diseased_probability": round(diseased_probability, 4),
+            "confidence": round(sorted_probs[0], 4),
+            "is_uncertain": top1_top2_margin < UNCERTAINTY_MARGIN,
         }

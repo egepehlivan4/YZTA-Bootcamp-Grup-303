@@ -12,7 +12,7 @@ from src.security.rbac import get_current_user
 router = APIRouter(tags=["history"])
 
 
-@router.get("/history/{farmer_id}", response_model=list[HistoryRecord])
+@router.get("/{farmer_id}", response_model=list[HistoryRecord])
 def get_history(
     farmer_id: str,
     limit: int = 20,

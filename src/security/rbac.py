@@ -14,7 +14,7 @@ from src.config import Settings, get_settings
 from src.data.schemas import Role, TokenPayload
 from src.security.auth import decode_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 def get_current_user(

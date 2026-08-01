@@ -20,9 +20,9 @@ import re
 from langchain_groq import ChatGroq
 
 try:
-    from langgraph.prebuilt import create_react_agent  # LangGraph >=1.0
+    from langchain.agents import create_agent
 except ImportError:
-    from langchain.agents import create_agent as create_react_agent  # fallback
+    from langgraph.prebuilt import create_react_agent as create_agent  # fallback
 
 from src.agent.memory import FarmerMemory
 from src.agent.prompts import HUMAN_TASK_TEMPLATE, SYSTEM_PROMPT
@@ -66,7 +66,11 @@ class OrchestratorService:
         if self.settings.groq_api_key:
             llm_kwargs["api_key"] = self.settings.groq_api_key
         llm = ChatGroq(**llm_kwargs)
-        return create_react_agent(llm, self.tools, prompt=SYSTEM_PROMPT)
+        try:
+            return create_agent(llm, self.tools, system_prompt=SYSTEM_PROMPT)
+        except TypeError:
+            # langgraph.prebuilt fallback (eski imza: prompt=)
+            return create_agent(llm, self.tools, prompt=SYSTEM_PROMPT)
 
     def analyze(self, farmer_id: str, image_path: str, location: str, crop_type: str) -> dict:
         try:
@@ -106,12 +110,12 @@ class OrchestratorService:
     def _analyze_deterministic(self, farmer_id: str, image_path: str, location: str, crop_type: str) -> dict:
         from pathlib import Path
 
-        from src.data.weather_source import generate_synthetic_series
+        from src.data.weather_source import get_weather_series
 
         cnn_result = self.cnn_predictor.predict(Path(image_path).read_bytes())
         top_class = max(cnn_result["class_probabilities"], key=cnn_result["class_probabilities"].get)
 
-        weather_series = generate_synthetic_series(location)
+        weather_series = get_weather_series(location)
         lstm_result = self.lstm_predictor.predict(weather_series)
 
         ensemble_result = combine_risk_scores(

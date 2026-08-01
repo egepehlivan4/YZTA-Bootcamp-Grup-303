@@ -19,7 +19,7 @@ from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 
 from src.agent.memory import FarmerMemory
-from src.data.weather_source import generate_synthetic_series
+from src.data.weather_source import get_weather_series
 from src.models.cnn_model import CNNPredictor
 from src.models.ensemble import EnsembleWeights, combine_risk_scores
 from src.models.lstm_model import LSTMPredictor
@@ -80,7 +80,7 @@ def build_tools(
         return cnn_predictor.predict(image_bytes)
 
     def _analyze_weather_risk(location: str) -> dict:
-        series = generate_synthetic_series(location)
+        series = get_weather_series(location)
         result = lstm_predictor.predict(series)
         result["location"] = location
         result["days_analyzed"] = len(series)

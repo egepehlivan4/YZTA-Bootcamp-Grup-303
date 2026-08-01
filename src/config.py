@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     # --- LLM / Ajan (Groq Altyapısı) ---
     llm_provider: str = "groq"
     groq_api_key: str | None = None
-    llm_model: str = "llama3-70b-8192"
+    llm_model: str = "llama-3.3-70b-versatile"
     llm_temperature: float = 0.3
     agent_max_iterations: int = 8
 
@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     jwt_secret_key: str = "CHANGE_ME_IN_PRODUCTION"  # .env üzerinden override edilmeli
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
+
+    # --- Hava Durumu (opsiyonel) ---
+    openweather_api_key: str | None = None
 
     # --- CORS ---
     cors_allow_origins: tuple[str, ...] = ("*",)

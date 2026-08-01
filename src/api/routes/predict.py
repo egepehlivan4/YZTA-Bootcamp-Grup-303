@@ -18,7 +18,7 @@ router = APIRouter(tags=["predict"])
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png"}
 
 
-@router.post("/predict", response_model=PredictionResponse)
+@router.post("", response_model=PredictionResponse)
 async def predict(
     image: UploadFile = File(...),
     farmer_id: str = Form(...),
@@ -51,6 +51,11 @@ async def predict(
         result = orchestrator.analyze(
             farmer_id=farmer_id, image_path=str(tmp_path), location=location, crop_type=crop_type,
         )
+    except ValueError as exc:
+        # CNN katmanı, içerik-tipi doğru ama baytları bozuk/geçersiz bir
+        # görüntüde (ör. yarım yüklenmiş dosya) ValueError fırlatır — bunu
+        # 500 yerine anlaşılır bir 422 yanıtına çeviriyoruz.
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     finally:
         tmp_path.unlink(missing_ok=True)
 
