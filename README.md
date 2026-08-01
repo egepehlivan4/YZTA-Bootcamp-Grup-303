@@ -135,7 +135,8 @@ floraguard/
 ├── artifacts/           # Eğitilmiş model dosyaları (.pt, .joblib)
 ├── Dockerfile           # Docker container tanımı (Render uyumlu)
 ├── render.yaml          # Render Blueprint (one-click deploy)
-├── requirements.txt     # Python bağımlılıkları
+├── requirements.txt     # Streamlit Cloud için hafif frontend bağımlılıkları (bkz. not aşağıda)
+├── requirements-full.txt # Backend dahil TAM bağımlılık listesi (Docker/Render, yerel tam-yığın geliştirme)
 ├── .env.example         # Ortam değişkenleri şablonu
 └── .gitignore
 ```
@@ -216,8 +217,10 @@ cd YZTA-Bootcamp-Grup303
 # 2. Sanal ortam oluşturup aktifleştirin
 python3 -m venv .venv && source .venv/bin/activate
 
-# 3. Bağımlılıkları yükleyin
-pip install -r requirements.txt
+# 3. Bağımlılıkları yükleyin (backend + frontend birlikte, yerel tam-yığın geliştirme için)
+pip install -r requirements-full.txt
+# NOT: Kök requirements.txt yalnızca Streamlit Cloud deploy'u için hafif bir
+# frontend listesidir (bkz. "Streamlit Community Cloud'a Deploy" bölümü).
 
 # 4. Ortam değişkenlerini ayarlayın
 cp .env.example .env
@@ -263,6 +266,24 @@ Veya `render.yaml` Blueprint dosyasını kullanarak:
 # Render CLI ile tek komutla deploy
 render blueprint apply
 ```
+
+### Streamlit Community Cloud'a Deploy (Frontend)
+
+Backend'den (Render) ayrı olarak barındırılır — [share.streamlit.io](https://share.streamlit.io) üzerinden:
+
+1. GitHub hesabınızla giriş yapıp **"Deploy a public app from GitHub"** seçin.
+2. **Main file path** alanına mutlaka `src/ui/streamlit_app.py` yazın.
+3. **Advanced settings → Secrets** kısmına backend URL'sini TOML formatında ekleyin:
+   ```toml
+   FLORAGUARD_API_URL = "https://<render-backend-url>"
+   ```
+4. Deploy edin.
+
+**Önemli:** Streamlit Community Cloud, giriş dosyasının konumundan bağımsız olarak
+**her zaman kök dizindeki `requirements.txt`'i** kullanır (alt dizindekini otomatik
+algılamaz). Bu yüzden kök `requirements.txt` bilinçli olarak yalnızca frontend'in
+ihtiyaç duyduğu 3 paketi içerir; backend'in tam listesi `requirements-full.txt`'tedir
+ve yalnızca Docker/Render tarafından kullanılır.
 
 ---
 

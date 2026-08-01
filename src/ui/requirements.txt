@@ -1,8 +1,0 @@
-# FloraGuard — Streamlit Frontend Bağımlılıkları
-# Streamlit Community Cloud, giriş dosyasıyla (src/ui/streamlit_app.py) aynı
-# dizindeki requirements.txt'i kök dizindekine tercih eder. Backend'in ağır
-# bağımlılıklarını (torch, langchain/langgraph, vb.) burada TEKRARLAMIYORUZ —
-# arayüz yalnızca HTTP üzerinden backend API'sini çağırır (katman ayrımı).
-streamlit==1.40.2
-requests==2.32.3
-pandas==2.2.3

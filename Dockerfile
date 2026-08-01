@@ -11,12 +11,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. Önce sadece gereksinimleri kopyalıyoruz (Docker Cache Optimizasyonu)
-COPY requirements.txt .
+# NOT: requirements.txt (kök) artık yalnızca Streamlit Cloud'un okuduğu hafif
+# frontend listesidir. Backend'in tam bağımlılık listesi requirements-full.txt'tedir.
+COPY requirements-full.txt .
 
 # 5. Kritik Optimizasyon: Render (veya ücretsiz bulut) sunucularında GPU yoktur.
 # PyTorch'un varsayılan kurulumu CUDA ile gelir ve imajı 2-3 GB şişirir.
 # Sadece CPU versiyonunu indirerek imaj boyutunu ve RAM tüketimini minimize ediyoruz.
-RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -r requirements-full.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # 6. Projenin kaynak kodlarını konteynere kopyalıyoruz
 # NOT: .env dosyası KOPYALANMAZ — ortam değişkenleri Render dashboard'dan verilmelidir.

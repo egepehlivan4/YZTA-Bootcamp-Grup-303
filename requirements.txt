@@ -1,37 +1,13 @@
-# --- Backend / API ---
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
-python-multipart==0.0.19
-pydantic==2.10.3
-pydantic-settings==2.7.0
-
-# --- Modeller ---
-torch
-torchvision
-scikit-learn==1.5.2
-joblib==1.4.2
-numpy==1.26.4
-pandas==2.2.3
-Pillow==11.0.0
-
-# --- Orkestratör Ajan (LangGraph / LangChain) ---
-langgraph
-langchain
-langchain-core
-langchain-groq
-
-# --- Güvenlik (JWT / RBAC) ---
-pyjwt==2.10.1
-passlib[bcrypt]==1.7.4
-bcrypt==4.0.1  # passlib 1.7.4, bcrypt>=4.1'in __about__ kaldırılmasıyla uyumsuz (bilinen sorun)
-
-# --- Frontend ---
+# FloraGuard — Streamlit Frontend Bağımlılıkları (Streamlit Community Cloud)
+#
+# ÖNEMLİ: Streamlit Community Cloud, giriş dosyasının (src/ui/streamlit_app.py)
+# konumundan BAĞIMSIZ olarak HER ZAMAN reponun kök dizinindeki bu dosyayı okur
+# (giriş dosyasıyla aynı dizindeki requirements.txt'i tercih ETMEZ). Bu yüzden
+# bu dosya bilinçli olarak yalnızca arayüzün gerçekten kullandığı 3 paketi
+# içerir; backend'in tam bağımlılık listesi (FastAPI, torch, langchain, vb.)
+# `requirements-full.txt` içindedir ve Docker/Render tarafından kullanılır
+# (bkz. Dockerfile). Yerel tam-yığın (backend+frontend) geliştirme için:
+#     pip install -r requirements-full.txt
 streamlit==1.40.2
 requests==2.32.3
-
-# --- Ortam değişkenleri ---
-python-dotenv==1.0.1
-
-# --- Test ---
-pytest==8.3.4
-httpx==0.28.1
+pandas==2.2.3

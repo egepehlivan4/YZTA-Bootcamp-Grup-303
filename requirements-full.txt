@@ -1,0 +1,37 @@
+# --- Backend / API ---
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.19
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# --- Modeller ---
+torch
+torchvision
+scikit-learn==1.5.2
+joblib==1.4.2
+numpy==1.26.4
+pandas==2.2.3
+Pillow==11.0.0
+
+# --- Orkestratör Ajan (LangGraph / LangChain) ---
+langgraph
+langchain
+langchain-core
+langchain-groq
+
+# --- Güvenlik (JWT / RBAC) ---
+pyjwt==2.10.1
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  # passlib 1.7.4, bcrypt>=4.1'in __about__ kaldırılmasıyla uyumsuz (bilinen sorun)
+
+# --- Frontend ---
+streamlit==1.40.2
+requests==2.32.3
+
+# --- Ortam değişkenleri ---
+python-dotenv==1.0.1
+
+# --- Test ---
+pytest==8.3.4
+httpx==0.28.1
