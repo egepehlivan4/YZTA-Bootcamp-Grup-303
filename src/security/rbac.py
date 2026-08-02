@@ -43,3 +43,39 @@ def require_role(*allowed_roles: Role):
         return current_user
 
     return _checker
+
+
+# ---------------------------------------------------------------------------
+# Kayıt görüntüleme/düzenleme politikası
+#
+# Görüntüleme: Çiftçi yalnızca kendi geçmişini görür; Danışman kendi geçmişini
+# ve çiftçilerin geçmişini görür (başka danışman/admin'inkini göremez); Admin
+# herkesi görür.
+#
+# Düzenleme/silme: Çiftçi hiçbir kaydı düzenleyemez/silemez (salt okunur);
+# Danışman yalnızca çiftçi kayıtlarını düzenleyip silebilir; Admin hem çiftçi
+# hem danışman kayıtlarını düzenleyip silebilir.
+#
+# `target_role`/`owner_role` None ise (farmer_id sistemde kayıtlı bir kullanıcıya
+# ait değilse — ör. serbest metin girişi), çiftçi gibi ele alınır: bu kimlik bir
+# gerçek çiftçiyi temsil ettiği varsayılır, danışman/admin erişimi engellenmez.
+# ---------------------------------------------------------------------------
+
+def can_view_farmer_history(current_user: TokenPayload, target_farmer_id: str, target_role: Role | None) -> bool:
+    if current_user.role == Role.ADMIN:
+        return True
+    if current_user.sub == target_farmer_id:
+        return True
+    if current_user.role == Role.ADVISOR:
+        return target_role in (None, Role.FARMER)
+    return False  # Role.FARMER, kendisi değil
+
+
+def can_modify_record(current_user: TokenPayload, owner_role: Role | None) -> bool:
+    if current_user.role == Role.FARMER:
+        return False
+    if current_user.role == Role.ADVISOR:
+        return owner_role in (None, Role.FARMER)
+    if current_user.role == Role.ADMIN:
+        return owner_role in (None, Role.FARMER, Role.ADVISOR)
+    return False

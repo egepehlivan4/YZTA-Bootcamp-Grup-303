@@ -90,6 +90,16 @@ class PredictionResponse(BaseModel):
     generated_at: datetime
 
 
+class HistoryRecordUpdate(BaseModel):
+    """Danışman/Admin tarafından düzenlenebilir alanlar — model çıktıları
+    (disease_probability, estimated_yield_loss_pct) kasıtlı olarak dışarıda
+    bırakılmıştır (bkz. FarmerMemory.update_record)."""
+
+    crop_type: str | None = None
+    location: str | None = None
+    advice: str | None = None
+
+
 class HistoryRecord(BaseModel):
     id: int | None = None
     farmer_id: str

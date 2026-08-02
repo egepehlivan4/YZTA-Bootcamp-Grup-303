@@ -23,6 +23,7 @@ from src.ui.styles import inject_global_styles, risk_badge_html, risk_level
 
 MAX_IMAGE_SIZE_MB = 10
 CROP_OPTIONS = ["domates", "biber", "salatalik", "patates", "bugday"]
+MODIFIER_ROLES = ("advisor", "admin")
 
 st.set_page_config(
     page_title="FloraGuard | Yapay Zeka Destekli Tarım",
@@ -70,8 +71,10 @@ def _render_hero() -> None:
     st.markdown(
         """
         <div class="fg-hero">
+            <span class="fg-hero-badge">Yapay Zeka Destekli Karar Destek Sistemi</span>
             <h1>🌱 FloraGuard</h1>
-            <p>Bitkiniz önümüzdeki 5 gün içinde hastalanacak mı? Yapay zeka destekli önleyici karar destek sistemi.</p>
+            <p>Bitkiniz önümüzdeki 5 gün içinde hastalanacak mı? CNN + LSTM ensemble'ı,
+            Orkestratör Ajan ve çiftçi hafızasıyla önleyici, kişiselleştirilmiş tavsiye üretir.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -79,21 +82,20 @@ def _render_hero() -> None:
 
 
 def _render_login_screen() -> None:
-    _, center, _ = st.columns([1, 1.4, 1])
+    _, center, _ = st.columns([1, 1.3, 1])
     with center:
-        st.markdown('<div class="fg-card">', unsafe_allow_html=True)
-        st.subheader("🔐 Giriş Yap")
-        st.info(
-            "**Demo hesaplar**\n\n"
-            "* Çiftçi: `ciftci1` / `ciftci123`\n"
-            "* Danışman: `danisman1` / `danisman123`\n"
-            "* Admin: `admin1` / `admin123`"
-        )
-        with st.form("login_form"):
-            username = st.text_input("Kullanıcı adı")
-            password = st.text_input("Şifre", type="password")
-            submitted = st.form_submit_button("Giriş Yap", type="primary", use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.subheader("🔐 Giriş Yap")
+            st.info(
+                "**Demo hesaplar**\n\n"
+                "* Çiftçi: `ciftci1` / `ciftci123`\n"
+                "* Danışman: `danisman1` / `danisman123`\n"
+                "* Admin: `admin1` / `admin123`"
+            )
+            with st.form("login_form"):
+                username = st.text_input("Kullanıcı adı", key="login_username")
+                password = st.text_input("Şifre", type="password", key="login_password")
+                submitted = st.form_submit_button("Giriş Yap", type="primary", use_container_width=True)
 
     if submitted:
         if not username or not password:
@@ -102,11 +104,18 @@ def _render_login_screen() -> None:
             st.rerun()
 
 
+_ROLE_LABELS = {"farmer": "Çiftçi", "advisor": "Danışman", "admin": "Admin"}
+
+
 def _render_sidebar() -> None:
     with st.sidebar:
         st.markdown("### 🌱 FloraGuard")
-        st.success(f"**{st.session_state['username']}**\n\nRol: `{st.session_state['role']}`")
-        if st.button("Çıkış Yap", use_container_width=True):
+        role_label = _ROLE_LABELS.get(st.session_state["role"], st.session_state["role"])
+        st.success(f"**{st.session_state['username']}**\n\nRol: `{role_label}`")
+        if st.session_state["role"] in MODIFIER_ROLES:
+            st.caption("✏️ Çiftçi kayıtlarını düzenleme/silme yetkiniz var." if st.session_state["role"] == "advisor"
+                       else "✏️ Tüm kayıtları düzenleme/silme yetkiniz var.")
+        if st.button("Çıkış Yap", use_container_width=True, key="logout_button"):
             _logout()
             st.rerun()
         st.divider()
@@ -122,48 +131,58 @@ def _default_farmer_id() -> str:
     return st.session_state["username"] if st.session_state["role"] == "farmer" else ""
 
 
+def _risk_meter_html(probability: float) -> str:
+    pct = min(max(probability, 0.0), 1.0) * 100
+    return f"""
+    <div style="background: rgba(15,70,54,0.08); border-radius: 999px; height: 10px; overflow: hidden; margin: 0.4rem 0 1rem;">
+        <div style="width: {pct:.1f}%; height: 100%;
+                    background: linear-gradient(90deg, #16664f, #c8a24a);
+                    border-radius: 999px;"></div>
+    </div>
+    """
+
+
 def _render_result(result: dict) -> None:
-    label, _ = risk_level(result["disease_probability"])
-    st.markdown('<div class="fg-card">', unsafe_allow_html=True)
-    st.markdown(f"#### 📊 Analiz Sonuçları &nbsp; {risk_badge_html(result['disease_probability'])}", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(f"#### 📊 Analiz Sonuçları &nbsp; {risk_badge_html(result['disease_probability'])}", unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("5 Günlük Hastalık Riski", f"%{result['disease_probability'] * 100:.0f}", help=label)
-    col2.metric("Tahmini Verim Kaybı", f"%{result['estimated_yield_loss_pct']:.1f}")
-    col3.metric("CNN Tespiti", result["cnn_top_class"])
+        col1, col2, col3 = st.columns(3)
+        col1.metric("5 Günlük Hastalık Riski", f"%{result['disease_probability'] * 100:.0f}")
+        col2.metric("Tahmini Verim Kaybı", f"%{result['estimated_yield_loss_pct']:.1f}")
+        col3.metric("CNN Tespiti", result["cnn_top_class"])
 
-    st.progress(min(max(result["disease_probability"], 0.0), 1.0))
+        st.markdown(_risk_meter_html(result["disease_probability"]), unsafe_allow_html=True)
 
-    st.markdown("**🤖 Orkestratör Ajanın Karar Destek Tavsiyesi**")
-    st.markdown(f'<div class="fg-advice">{result["advice"]}</div>', unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("**🤖 Orkestratör Ajanın Karar Destek Tavsiyesi**")
+        st.markdown(f'<div class="fg-advice">{result["advice"]}</div>', unsafe_allow_html=True)
 
 
 def _render_analysis_tab() -> None:
     left, right = st.columns([1.1, 0.9])
 
     with left:
-        st.markdown('<div class="fg-card">', unsafe_allow_html=True)
-        st.markdown("#### 📝 Çiftlik Bilgileri")
-        default_farmer_id = _default_farmer_id()
-        farmer_id = st.text_input("Çiftçi ID", value=default_farmer_id, placeholder="ör. ciftci1")
-        location = st.text_input("Konum (şehir/ilçe)", placeholder="ör. Antalya")
-        crop_type = st.selectbox("Ürün Tipi", CROP_OPTIONS)
-        uploaded_file = st.file_uploader(
-            "Yaprak fotoğrafı yükleyin (JPEG/PNG, maks. 10 MB)",
-            type=["jpg", "jpeg", "png"],
-            help="Hastalığı net olarak gösteren, iyi aydınlatılmış tek bir yaprak fotoğrafı tercih edilir.",
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("#### 📝 Çiftlik Bilgileri")
+            default_farmer_id = _default_farmer_id()
+            farmer_id = st.text_input(
+                "Çiftçi ID", value=default_farmer_id, placeholder="ör. ciftci1", key="analysis_farmer_id",
+            )
+            location = st.text_input("Konum (şehir/ilçe)", placeholder="ör. Antalya", key="analysis_location")
+            crop_type = st.selectbox("Ürün Tipi", CROP_OPTIONS, key="analysis_crop_type")
+            uploaded_file = st.file_uploader(
+                "Yaprak fotoğrafı yükleyin (JPEG/PNG, maks. 10 MB)",
+                type=["jpg", "jpeg", "png"],
+                help="Hastalığı net olarak gösteren, iyi aydınlatılmış tek bir yaprak fotoğrafı tercih edilir.",
+                key="analysis_uploader",
+            )
 
     with right:
-        st.markdown('<div class="fg-card">', unsafe_allow_html=True)
-        st.markdown("#### 🖼️ Önizleme")
-        if uploaded_file is not None:
-            st.image(uploaded_file, use_container_width=True)
-        else:
-            st.caption("Analiz için soldan bir yaprak fotoğrafı yükleyin.")
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("#### 🖼️ Önizleme")
+            if uploaded_file is not None:
+                st.image(uploaded_file, use_container_width=True)
+            else:
+                st.caption("Analiz için soldan bir yaprak fotoğrafı yükleyin.")
 
     if uploaded_file is None:
         return
@@ -177,7 +196,10 @@ def _render_analysis_tab() -> None:
     if missing_fields:
         st.warning("Analizi başlatmak için Çiftçi ID ve Konum alanlarını doldurun.")
 
-    if st.button("🔍 Yapay Zeka ile Analiz Et", type="primary", use_container_width=True, disabled=missing_fields):
+    if st.button(
+        "🔍 Yapay Zeka ile Analiz Et", type="primary", use_container_width=True,
+        disabled=missing_fields, key="analyze_button",
+    ):
         with st.spinner("Orkestratör Ajan çalışıyor: CNN sınıflandırması, LSTM risk tahmini ve geçmiş hafıza taranıyor..."):
             result = api_client.predict(
                 st.session_state["access_token"],
@@ -211,17 +233,60 @@ def _render_history_trend(records: list[dict]) -> None:
     st.line_chart(chart_df, height=220)
 
 
+def _render_record_edit_form(record: dict, token: str) -> None:
+    """Danışman/Admin için düzenleme formu — yalnızca insan tarafından
+    girilebilir alanlar (crop_type/location/advice) değiştirilebilir."""
+    with st.form(f"edit_form_{record['id']}", border=False):
+        crop_index = CROP_OPTIONS.index(record["crop_type"]) if record["crop_type"] in CROP_OPTIONS else 0
+        new_crop = st.selectbox("Ürün Tipi", CROP_OPTIONS, index=crop_index, key=f"crop_{record['id']}")
+        new_location = st.text_input("Konum", value=record["location"], key=f"loc_{record['id']}")
+        new_advice = st.text_area("Tavsiye", value=record.get("advice") or "", key=f"advice_{record['id']}")
+        save_clicked = st.form_submit_button("💾 Kaydet", type="primary")
+
+    if save_clicked:
+        result = api_client.update_history_record(
+            token, record["id"], crop_type=new_crop, location=new_location, advice=new_advice,
+        )
+        if result.ok:
+            st.success("Kayıt güncellendi.")
+            st.rerun()
+        else:
+            st.error(f"Güncellenemedi: {result.message}")
+
+
+def _render_record_delete_control(record: dict, token: str) -> None:
+    confirm_key = f"confirm_delete_{record['id']}"
+    if st.session_state.get(confirm_key):
+        st.warning("Bu kaydı kalıcı olarak silmek istediğinize emin misiniz?")
+        yes_col, no_col = st.columns(2)
+        if yes_col.button("Evet, sil", key=f"yes_{record['id']}", type="primary", use_container_width=True):
+            result = api_client.delete_history_record(token, record["id"])
+            st.session_state[confirm_key] = False
+            if result.ok:
+                st.success("Kayıt silindi.")
+                st.rerun()
+            else:
+                st.error(f"Silinemedi: {result.message}")
+        if no_col.button("Vazgeç", key=f"no_{record['id']}", use_container_width=True):
+            st.session_state[confirm_key] = False
+            st.rerun()
+    else:
+        if st.button("🗑️ Sil", key=f"del_{record['id']}"):
+            st.session_state[confirm_key] = True
+            st.rerun()
+
+
 def _render_history_tab() -> None:
-    st.markdown('<div class="fg-card">', unsafe_allow_html=True)
-    st.markdown("#### 📜 Çiftçi Hafızası (Geçmiş Kayıtlar)")
-    col_id, col_limit, col_btn = st.columns([2, 1, 1])
-    farmer_id = col_id.text_input(
-        "Geçmişini görüntülemek istediğiniz Çiftçi ID", value=_default_farmer_id(), key="history_input"
-    )
-    limit = col_limit.slider("Kayıt sayısı", min_value=5, max_value=50, value=20, step=5)
-    col_btn.markdown("<div style='height: 1.8rem;'></div>", unsafe_allow_html=True)
-    fetch = col_btn.button("Geçmişi Getir", use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("#### 📜 Çiftçi Hafızası (Geçmiş Kayıtlar)")
+        col_id, col_limit, col_btn = st.columns([2, 1, 1], vertical_alignment="bottom")
+        farmer_id = col_id.text_input(
+            "Geçmişini görüntülemek istediğiniz Çiftçi ID", value=_default_farmer_id(), key="history_input"
+        )
+        limit = col_limit.slider(
+            "Kayıt sayısı", min_value=5, max_value=50, value=20, step=5, key="history_limit",
+        )
+        fetch = col_btn.button("Geçmişi Getir", use_container_width=True, key="history_fetch_button")
 
     if not fetch:
         return
@@ -230,7 +295,8 @@ def _render_history_tab() -> None:
         st.warning("Lütfen bir Çiftçi ID girin.")
         return
 
-    result = api_client.get_history(st.session_state["access_token"], farmer_id, limit=limit)
+    token = st.session_state["access_token"]
+    result = api_client.get_history(token, farmer_id, limit=limit)
     if not result.ok:
         st.error(f"Geçmiş veriler alınamadı: {result.message}")
         return
@@ -240,17 +306,24 @@ def _render_history_tab() -> None:
         st.info("Bu çiftçi için sistemde henüz hafıza/geçmiş kaydı bulunmuyor.")
         return
 
-    _render_history_trend(records)
+    with st.container(border=True):
+        _render_history_trend(records)
+
+    can_modify = st.session_state["role"] in MODIFIER_ROLES
 
     for record in records:
         ts = datetime.fromisoformat(record["timestamp"]).strftime("%Y-%m-%d %H:%M")
-        badge = risk_badge_html(record["disease_probability"])
         with st.expander(f"{ts} — {record['crop_type']} — Risk: %{record['disease_probability'] * 100:.0f}"):
-            st.markdown(badge, unsafe_allow_html=True)
+            st.markdown(risk_badge_html(record["disease_probability"]), unsafe_allow_html=True)
             st.write(f"**Konum:** {record['location']}")
             st.write(f"**Tahmini verim kaybı:** %{record['estimated_yield_loss_pct']:.1f}")
             if record.get("advice"):
-                st.write(f"**Önceki Tavsiye:** {record['advice']}")
+                st.write(f"**Tavsiye:** {record['advice']}")
+
+            if can_modify:
+                st.divider()
+                _render_record_edit_form(record, token)
+                _render_record_delete_control(record, token)
 
 
 # ---------------------------------------------------------------------------

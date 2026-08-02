@@ -60,6 +60,13 @@ def get_user(db_path: Path, username: str) -> dict | None:
         return dict(row) if row else None
 
 
+def get_user_role(db_path: Path, username: str) -> Role | None:
+    """Kayıt sahibinin rolünü döner; kullanıcı sistemde kayıtlı değilse None
+    (RBAC katmanı bunu Role.FARMER gibi ele alır — bkz. src/security/rbac.py)."""
+    user = get_user(db_path, username)
+    return Role(user["role"]) if user else None
+
+
 def create_user(db_path: Path, username: str, password: str, role: Role, full_name: str = "") -> None:
     with get_connection(db_path) as conn:
         conn.execute(

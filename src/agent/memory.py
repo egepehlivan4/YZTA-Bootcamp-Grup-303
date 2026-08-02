@@ -79,6 +79,55 @@ class FarmerMemory:
             ).fetchall()
             return [dict(row) for row in rows]
 
+    def get_record(self, record_id: int) -> dict | None:
+        with get_connection(self.db_path) as conn:
+            row = conn.execute(
+                """
+                SELECT id, farmer_id, timestamp, crop_type, location,
+                       disease_probability, estimated_yield_loss_pct, advice
+                FROM predictions
+                WHERE id = ?
+                """,
+                (record_id,),
+            ).fetchone()
+            return dict(row) if row else None
+
+    def update_record(
+        self,
+        record_id: int,
+        *,
+        crop_type: str | None = None,
+        location: str | None = None,
+        advice: str | None = None,
+    ) -> bool:
+        """Yalnızca insan tarafından düzenlenebilir alanları günceller — model
+        çıktıları (disease_probability, estimated_yield_loss_pct) kasıtlı olarak
+        değiştirilemez, aksi halde geçmiş kayıt artık gerçek YZ çıktısını yansıtmaz."""
+        fields, values = [], []
+        if crop_type is not None:
+            fields.append("crop_type = ?")
+            values.append(crop_type)
+        if location is not None:
+            fields.append("location = ?")
+            values.append(location)
+        if advice is not None:
+            fields.append("advice = ?")
+            values.append(advice)
+        if not fields:
+            return False
+
+        values.append(record_id)
+        with get_connection(self.db_path) as conn:
+            cursor = conn.execute(
+                f"UPDATE predictions SET {', '.join(fields)} WHERE id = ?", values,
+            )
+            return cursor.rowcount > 0
+
+    def delete_record(self, record_id: int) -> bool:
+        with get_connection(self.db_path) as conn:
+            cursor = conn.execute("DELETE FROM predictions WHERE id = ?", (record_id,))
+            return cursor.rowcount > 0
+
     def summarize_for_agent(self, farmer_id: str, limit: int = 5) -> str:
         """
         Agent prompt'una gömülecek kısa, okunabilir özet üretir.

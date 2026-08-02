@@ -63,6 +63,9 @@ def _request(method: str, endpoint: str, *, timeout: int = DEFAULT_TIMEOUT_S, **
     if response.status_code >= 400:
         return ApiResponse(ok=False, status_code=response.status_code, message=_extract_error_message(response))
 
+    if not response.content:  # ör. 204 No Content (DELETE) — gövde yok
+        return ApiResponse(ok=True, status_code=response.status_code, data=None)
+
     return ApiResponse(ok=True, status_code=response.status_code, data=response.json())
 
 
@@ -95,5 +98,24 @@ def get_history(access_token: str, farmer_id: str, limit: int = 20) -> ApiRespon
         "GET",
         f"/api/history/{farmer_id}",
         params={"limit": limit},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+
+def update_history_record(access_token: str, record_id: int, **fields: Any) -> ApiResponse:
+    """`fields`: crop_type/location/advice içinden yalnızca gönderilenler güncellenir."""
+    payload = {key: value for key, value in fields.items() if value is not None}
+    return _request(
+        "PUT",
+        f"/api/history/record/{record_id}",
+        json=payload,
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+
+def delete_history_record(access_token: str, record_id: int) -> ApiResponse:
+    return _request(
+        "DELETE",
+        f"/api/history/record/{record_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )

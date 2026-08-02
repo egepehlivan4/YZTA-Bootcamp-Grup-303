@@ -18,6 +18,7 @@ def _mock_response(status_code: int, json_data: dict | list | None = None, text:
     response.status_code = status_code
     response.json.return_value = json_data if json_data is not None else {}
     response.text = text
+    response.content = b"{}" if json_data is not None else b""
     return response
 
 
@@ -104,3 +105,40 @@ def test_get_history_server_error_uses_raw_text_when_not_json(mock_request: Magi
 
     assert not result.ok
     assert result.message == "Internal Server Error"
+
+
+@patch("src.ui.api_client.requests.request")
+def test_update_history_record_success(mock_request: MagicMock) -> None:
+    mock_request.return_value = _mock_response(200, {"id": 1, "advice": "yeni tavsiye"})
+
+    result = api_client.update_history_record("fake-token", 1, advice="yeni tavsiye", location=None)
+
+    assert result.ok
+    _, kwargs = mock_request.call_args
+    assert kwargs["json"] == {"advice": "yeni tavsiye"}  # None alanlar filtrelenmeli
+
+
+@patch("src.ui.api_client.requests.request")
+def test_update_history_record_forbidden(mock_request: MagicMock) -> None:
+    mock_request.return_value = _mock_response(403, {"detail": "Bu kaydı düzenleme yetkiniz yok."})
+
+    result = api_client.update_history_record("fake-token", 1, advice="x")
+
+    assert not result.ok
+    assert result.status_code == 403
+
+
+@patch("src.ui.api_client.requests.request")
+def test_delete_history_record_success_handles_empty_body(mock_request: MagicMock) -> None:
+    """DELETE 204 No Content döner — response.json() çağrılırsa patlar, bu yüzden
+    boş gövde özel olarak ele alınmalı."""
+    response = MagicMock()
+    response.status_code = 204
+    response.content = b""
+    response.json.side_effect = ValueError("no body")
+    mock_request.return_value = response
+
+    result = api_client.delete_history_record("fake-token", 1)
+
+    assert result.ok
+    assert result.data is None
